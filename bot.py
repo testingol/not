@@ -93,48 +93,20 @@ class NotPixTod:
             "#00cc78",
             "#00a368",
         ]
-        self.block = {
-            "#3690EA": [
-                [ci(448, 595), ci(470, 595)],
-                [ci(448, 594), ci(470, 594)],
-                [ci(448, 593), ci(470, 593)],
-                [ci(448, 592), ci(470, 592)],
-                [ci(448, 591), ci(470, 591)],
-                [ci(448, 590), ci(470, 590)],
-                [ci(448, 589), ci(470, 589)],
-                [ci(448, 588), ci(470, 588)],
-                [ci(448, 587), ci(470, 587)],
-                [ci(448, 586), ci(470, 586)],
-                [ci(448, 585), ci(470, 585)],
-                [ci(448, 584), ci(470, 584)],
-                [ci(448, 583), ci(470, 583)],
-                [ci(448, 582), ci(470, 582)],
-                [ci(448, 581), ci(470, 581)],
-                [ci(532, 593), ci(595, 593)],
-                [ci(532, 592), ci(595, 592)],
-                [ci(532, 591), ci(595, 591)],
-                [ci(532, 590), ci(595, 590)],
-                [ci(532, 589), ci(595, 589)],
-                [ci(532, 588), ci(595, 588)],
-                [ci(532, 587), ci(595, 587)],
-                [ci(532, 586), ci(595, 586)],
-                [ci(532, 585), ci(595, 585)],
-                [ci(532, 584), ci(595, 584)],
-                [ci(532, 583), ci(595, 583)],
-                [ci(532, 582), ci(595, 582)],
-                [ci(532, 581), ci(595, 581)],
-                [ci(532, 580), ci(595, 580)],
-                [ci(532, 579), ci(595, 579)],
-                [ci(532, 578), ci(595, 578)],
-                [ci(532, 577), ci(595, 577)],
-                [ci(532, 576), ci(595, 576)],
-                [ci(532, 575), ci(595, 575)],
-                [ci(532, 574), ci(595, 574)],
-                [ci(532, 573), ci(595, 573)],
-                [ci(532, 572), ci(595, 572)],
-                [ci(532, 571), ci(595, 571)],
-            ]
-        }
+        self.block = [
+            {
+                "color": "#3690EA",
+                "block": [[ci(245, x), ci(311, x)] for x in range(547, 592, 1)],
+            },
+            {
+                "color":"#3690EA",
+                "block": [[ci(243,x),ci(296,x)] for x in range(461,515,1)]
+            },
+            {
+                "color":"#3690EA",
+                "block": [[ci(704,x),ci(755,x)] for x in range(659,684,1)]
+            }
+        ]
 
     def log(self, msg):
         now = datetime.now().isoformat().split("T")[1].split(".")[0]
@@ -308,6 +280,7 @@ class NotPixTod:
             self.log(f"{white}{phone}{red}account/phone has banned from telegram !")
             return None
         except FloodWaitError as e:
+            await client.disconnect()
             self.log(
                 f"{yellow}account {phone} is flooded. waiting for {e.seconds} seconds."
             )
@@ -365,16 +338,18 @@ class NotPixTod:
                 break
             for i in range(charges):
                 pixel_id = random.randint(1, 1000000)
-                new_color = random.choice(list(self.block.keys())).upper()
+                choice = random.choice(self.block)
+                block = choice.get("block")
+                color = choice.get("color").upper()
                 temp_color = [color.upper() for color in self.colors]
-                temp_color.remove(new_color)
+                temp_color.remove(color)
                 first_color = random.choice(temp_color).upper()
-                pixel_id = random.choice(random.choice(self.block[new_color]))
+                pixel_id = random.choice(random.choice(block))
                 for i in range(2):
                     if i == 0:
                         data = {"pixelId": pixel_id, "newColor": first_color}
                     else:
-                        data = {"pixelId": pixel_id, "newColor": new_color}
+                        data = {"pixelId": pixel_id, "newColor": color}
                     res = await self.http(paint_url, headers, json.dumps(data))
                     if res.status_code != 200:
                         self.log(f"failed paint pixel id : {white}{pixel_id}")
